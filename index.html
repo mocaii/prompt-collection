@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提示词收藏夹</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>mocai的提示词收藏夹</h1>
+            <div class="header-actions">
+                <button id="theme-toggle-btn" class="theme-toggle" title="切换主题">
+                    <span class="theme-icon">🌙</span>
+                </button>
+                <button id="add-prompt-btn">添加新提示词</button>
+            </div>
+        </header>
+        
+        <!-- 搜索栏 -->
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="搜索提示词标题、内容或分类...">
+                <button id="clear-search-btn" class="clear-btn" style="display: none;">×</button>
+            </div>
+            <div class="search-filters">
+                <select id="category-filter">
+                    <option value="">所有分类</option>
+                </select>
+                <select id="sort-filter">
+                    <option value="updated-desc">最近更新</option>
+                    <option value="updated-asc">最早更新</option>
+                    <option value="created-desc">最近创建</option>
+                    <option value="created-asc">最早创建</option>
+                    <option value="title-asc">标题 A-Z</option>
+                    <option value="title-desc">标题 Z-A</option>
+                </select>
+            </div>
+        </div>
+        
+        <main>
+            <div class="prompts-container" id="prompts-list">
+                <!-- 提示词列表将通过JavaScript动态生成 -->
+            </div>
+        </main>
+    </div>
+    
+    <!-- 添加/编辑提示词的模态框 -->
+    <div class="modal" id="prompt-modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 id="modal-title">添加新提示词</h2>
+            <form id="prompt-form">
+                <div class="form-group">
+                    <label for="prompt-title">标题:</label>
+                    <input type="text" id="prompt-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="prompt-content">内容:</label>
+                    <textarea id="prompt-content" rows="8" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="prompt-category">分类:</label>
+                    <input type="text" id="prompt-category">
+                </div>
+                <button type="submit" id="save-prompt-btn">保存</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 查看历史版本的模态框 -->
+    <div class="modal" id="history-modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>历史版本</h2>
+            <div id="history-list">
+                <!-- 历史版本列表将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
