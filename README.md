@@ -2,103 +2,181 @@
 
 一个简洁实用的提示词（Prompts）管理工具，帮助您收集、编辑和组织常用的AI提示词。
 
+## 🚀 快速开始
+
+直接打开 `index.html` 文件即可使用，无需任何配置。所有数据存储在本地浏览器中。
+
 ## 功能特点
 
-### 提示词管理
-- **添加提示词**：创建新的提示词，包含标题、内容和可选的分类
-- **编辑提示词**：随时修改已保存的提示词
-- **删除提示词**：移除不再需要的提示词
+### 📝 核心功能
+- **提示词管理**：添加、编辑、删除提示词
+- **历史版本**：自动保存编辑历史，支持版本回溯
 - **一键复制**：快速复制提示词内容到剪贴板
-
-### 搜索与筛选
 - **全文搜索**：支持在标题、内容和分类中搜索关键词
-- **关键词高亮**：搜索结果中的关键词会被高亮显示
-- **分类筛选**：按分类快速筛选提示词
-- **多种排序**：支持按更新时间、创建时间、标题等多种方式排序
-- **搜索结果统计**：显示搜索结果数量和筛选条件
+- **智能筛选**：按分类筛选，多种排序方式
+- **黑暗模式**：支持浅色/深色主题切换
 
-### 历史版本
-- **自动保存历史**：每次编辑提示词时自动保存历史版本
-- **查看历史记录**：浏览提示词的所有历史版本
-- **版本对比**：查看不同时间点的提示词内容
-- **复制历史版本**：一键复制任何历史版本的内容
+### ☁️ 云同步功能（可选）
 
-### 用户体验
-- **黑暗模式**：支持浅色/深色主题切换，自动适应系统偏好
-- **键盘快捷键**：支持常用操作的快捷键
-- **轻量级提示**：操作成功时显示轻量级的提示信息
-- **响应式设计**：适配不同屏幕尺寸，包括移动设备
-- **分类标签**：通过分类标签快速识别提示词类型
-- **直观操作**：简洁明了的界面设计，易于使用
+通过插件系统支持多种云同步方案：
 
-## 技术实现
+#### 方案1：GitHub Gist同步
+- ✅ 免费且稳定
+- ✅ 支持版本控制
+- ✅ 数据完全透明
 
-- **纯前端实现**：使用HTML、CSS和原生JavaScript开发
-- **本地存储**：使用浏览器的localStorage存储数据
-- **无依赖**：不依赖任何外部库或框架
-- **模块化设计**：采用面向对象的编程方式，代码结构清晰
+#### 方案2：自建服务器同步
+- ✅ 完全控制数据
+- ✅ 支持MySQL数据库
+- ✅ 提供完整的API服务
 
-## 数据安全
+## 📁 项目结构
 
-- 所有数据存储在用户本地浏览器中
-- 不会上传任何数据到服务器
-- 支持数据导入/导出功能（计划中）
+```
+prompt-collection/
+├── 📄 index.html              # 主页面
+├── 📄 app.js                  # 核心应用逻辑
+├── 📄 styles.css              # 样式文件
+├── 📁 plugins/                # 同步插件
+│   ├── github-sync.js         # GitHub Gist同步
+│   └── custom-api-sync.js     # 自定义API同步
+├── 📁 server-examples/        # 服务端示例
+│   └── nodejs-mysql/          # Node.js + MySQL方案
+├── 📁 docker/                 # Docker部署配置
+└── 📄 config-examples.js      # 配置示例
+```
 
-## 使用方法
+## ⚙️ 配置云同步
 
-1. 打开`index.html`文件在浏览器中运行应用
-2. 点击"添加新提示词"按钮创建提示词
-3. 点击提示词卡片上的操作按钮进行复制、查看历史、编辑或删除
-4. 使用搜索框快速查找提示词
-5. 点击右上角的主题切换按钮切换浅色/深色模式
+### GitHub Gist同步配置
 
-## 键盘快捷键
+1. **创建GitHub Personal Access Token**
+   - 访问 GitHub Settings > Developer settings > Personal access tokens
+   - 创建新token，勾选 `gist` 权限
+
+2. **配置同步**
+   ```javascript
+   // 在浏览器控制台执行
+   localStorage.setItem('githubSyncConfig', JSON.stringify({
+       token: 'your_github_token_here'
+   }));
+   location.reload(); // 刷新页面
+   ```
+
+### 自建服务器同步配置
+
+1. **部署服务器**
+   ```bash
+   cd server-examples/nodejs-mysql
+   npm install
+   npm start
+   ```
+
+2. **配置数据库**
+   - 创建MySQL数据库
+   - 修改 `server.js` 中的数据库配置
+
+3. **配置客户端**
+   ```javascript
+   localStorage.setItem('custom-apiSyncConfig', JSON.stringify({
+       endpoint: 'https://your-server.com',
+       userId: 'your-user-id'
+   }));
+   location.reload();
+   ```
+
+## 🐳 Docker一键部署
+
+```bash
+cd docker
+docker-compose up -d
+```
+
+这将启动：
+- MySQL数据库
+- Node.js API服务
+- Nginx反向代理
+
+## 🎯 使用方法
+
+### 基础使用
+1. 打开 `index.html` 开始使用
+2. 点击"添加新提示词"创建提示词
+3. 使用搜索框快速查找内容
+4. 点击主题切换按钮切换深色模式
+
+### 云同步使用
+1. 按照上述方法配置同步
+2. 配置完成后会显示云同步按钮
+3. 点击同步按钮进行数据同步
+4. 支持多设备间数据同步
+
+## ⌨️ 键盘快捷键
 
 - `Ctrl/Cmd + K`：聚焦搜索框
 - `Ctrl/Cmd + N`：添加新提示词
+- `Ctrl/Cmd + S`：云同步（需配置）
 - `Ctrl/Cmd + Shift + T`：切换主题模式
 
-## 未来计划
+## 🔧 开发者指南
 
-### 🔄 数据管理
-- 实现数据导入/导出功能
-- 支持JSON格式的数据备份和恢复
-- 数据迁移和版本兼容性处理
+### 创建自定义同步插件
 
-### ☁️ 云端功能
-- 支持云端存储和同步
-- 多设备数据同步
-- 离线/在线状态处理
+```javascript
+class CustomSyncProvider {
+    constructor(config) {
+        this.name = 'My Custom Sync';
+        // 初始化配置
+    }
 
-### 🔍 搜索增强
-- 支持正则表达式搜索
-- 高级搜索选项
-- 搜索模式切换（普通/正则）
+    async upload(prompts) {
+        // 上传逻辑
+        return { success: true };
+    }
 
-### 🎨 界面优化
-- 更多主题选项和自定义颜色方案
-- 字体大小调节功能
-- 界面布局自定义
+    async download() {
+        // 下载逻辑
+        return { prompts: [] };
+    }
+}
 
-### ⚡ 性能优化
-- 大量数据时的虚拟滚动
-- 搜索防抖优化
-- 懒加载历史版本
+export default CustomSyncProvider;
+```
 
-### 🔧 功能增强
-- 提示词模板功能
-- 快速插入常用文本
-- 提示词使用统计和分析
-- 批量操作功能
+### 注册插件
 
-## 浏览器兼容性
+```javascript
+// 在app.js中
+const provider = new CustomSyncProvider(config);
+syncManager.registerProvider('custom', provider);
+syncManager.setActiveProvider('custom');
+```
 
-支持所有现代浏览器，包括：
-- Chrome
-- Firefox
-- Safari
-- Edge
+## 🛡️ 数据安全
 
-## 开源协议
+- **本地优先**：核心功能完全本地化，无需网络
+- **可选同步**：云同步功能完全可选
+- **用户控制**：所有同步配置由用户控制
+- **开源透明**：代码完全开源，可审计
 
-MIT License
+## 📄 许可证
+
+MIT License - 详见 [LICENSE](LICENSE) 文件
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+### 贡献指南
+1. Fork 项目
+2. 创建功能分支
+3. 提交更改
+4. 推送到分支
+5. 创建 Pull Request
+
+## 📞 支持
+
+如有问题，请：
+1. 查看 [配置示例](config-examples.js)
+2. 提交 [Issue](https://github.com/your-repo/issues)
+3. 查看 [Wiki](https://github.com/your-repo/wiki)

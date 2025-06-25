@@ -11,12 +11,17 @@
         <header>
             <h1>mocai的提示词收藏夹</h1>
             <div class="header-actions">
+                <button id="sync-settings-btn" class="secondary-btn" title="同步设置">⚙️</button>
+                <button id="sync-btn" class="sync-btn" title="云同步" style="display: none;">☁️</button>
                 <button id="theme-toggle-btn" class="theme-toggle" title="切换主题">
                     <span class="theme-icon">🌙</span>
                 </button>
                 <button id="add-prompt-btn">添加新提示词</button>
             </div>
         </header>
+        
+        <!-- 同步状态显示 -->
+        <div id="sync-status" class="sync-status" style="display: none;"></div>
         
         <!-- 搜索栏 -->
         <div class="search-container">

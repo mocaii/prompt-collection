@@ -76,9 +76,91 @@ class PromptManager {
         return this.prompts.find(p => p.id === id);
     }
 
+    // 批量更新提示词（用于同步）
+    updateAllPrompts(prompts) {
+        this.prompts = prompts;
+        this._saveToLocalStorage();
+    }
+
     // 保存到localStorage
     _saveToLocalStorage() {
         localStorage.setItem('prompts', JSON.stringify(this.prompts));
+    }
+}
+
+// 同步管理器
+class SyncManager {
+    constructor() {
+        this.providers = new Map();
+        this.activeProvider = null;
+        this.syncStatus = 'idle'; // idle, syncing, error
+        this.lastSync = localStorage.getItem('lastSync');
+    }
+
+    // 注册同步提供者
+    registerProvider(name, provider) {
+        this.providers.set(name, provider);
+        console.log(`同步提供者 "${name}" 已注册`);
+    }
+
+    // 设置活动的同步提供者
+    setActiveProvider(name) {
+        if (this.providers.has(name)) {
+            this.activeProvider = this.providers.get(name);
+            localStorage.setItem('activeSyncProvider', name);
+            return true;
+        }
+        return false;
+    }
+
+    // 获取可用的同步提供者列表
+    getAvailableProviders() {
+        return Array.from(this.providers.keys());
+    }
+
+    // 同步到云端
+    async syncUp(prompts) {
+        if (!this.activeProvider) {
+            throw new Error('未配置同步提供者');
+        }
+
+        this.syncStatus = 'syncing';
+        try {
+            const result = await this.activeProvider.upload(prompts);
+            this.lastSync = new Date().toISOString();
+            localStorage.setItem('lastSync', this.lastSync);
+            this.syncStatus = 'idle';
+            return result;
+        } catch (error) {
+            this.syncStatus = 'error';
+            throw error;
+        }
+    }
+
+    // 从云端同步
+    async syncDown() {
+        if (!this.activeProvider) {
+            throw new Error('未配置同步提供者');
+        }
+
+        this.syncStatus = 'syncing';
+        try {
+            const result = await this.activeProvider.download();
+            this.syncStatus = 'idle';
+            return result;
+        } catch (error) {
+            this.syncStatus = 'error';
+            throw error;
+        }
+    }
+
+    // 获取同步状态
+    getSyncStatus() {
+        return {
+            status: this.syncStatus,
+            lastSync: this.lastSync,
+            activeProvider: this.activeProvider ? this.activeProvider.name : null
+        };
     }
 }
 
@@ -86,6 +168,7 @@ class PromptManager {
 class UIManager {
     constructor() {
         this.promptManager = new PromptManager();
+        this.syncManager = new SyncManager();
         this.currentEditingId = null;
         this.searchQuery = '';
         this.selectedCategory = '';
@@ -96,9 +179,78 @@ class UIManager {
 
     init() {
         this.initTheme();
+        this.initSync();
         this.bindEvents();
         this.renderPrompts();
         this.updateCategoryFilter();
+        this.updateSyncUI();
+    }
+
+    // 初始化同步功能
+    async initSync() {
+        // 尝试加载已保存的同步提供者
+        const savedProvider = localStorage.getItem('activeSyncProvider');
+        if (savedProvider) {
+            try {
+                await this.loadSyncProvider(savedProvider);
+            } catch (error) {
+                console.log('加载同步提供者失败:', error.message);
+            }
+        }
+    }
+
+    // 动态加载同步提供者
+    async loadSyncProvider(providerName) {
+        try {
+            const module = await import(`./plugins/${providerName}-sync.js`);
+            const ProviderClass = module.default;
+            
+            // 获取配置
+            const config = JSON.parse(localStorage.getItem(`${providerName}SyncConfig`) || '{}');
+            
+            if (Object.keys(config).length === 0) {
+                throw new Error(`${providerName} 同步未配置`);
+            }
+
+            const provider = new ProviderClass(config);
+            this.syncManager.registerProvider(providerName, provider);
+            this.syncManager.setActiveProvider(providerName);
+            
+            console.log(`${providerName} 同步提供者加载成功`);
+            return true;
+        } catch (error) {
+            console.log(`加载 ${providerName} 同步提供者失败:`, error.message);
+            return false;
+        }
+    }
+
+    // 更新同步相关UI
+    updateSyncUI() {
+        const syncStatus = this.syncManager.getSyncStatus();
+        const syncButton = document.getElementById('sync-btn');
+        const syncStatus元素 = document.getElementById('sync-status');
+
+        if (syncButton) {
+            syncButton.style.display = syncStatus.activeProvider ? 'inline-block' : 'none';
+            
+            if (syncStatus.status === 'syncing') {
+                syncButton.textContent = '同步中...';
+                syncButton.disabled = true;
+            } else {
+                syncButton.textContent = '云同步';
+                syncButton.disabled = false;
+            }
+        }
+
+        if (syncStatus元素) {
+            if (syncStatus.lastSync) {
+                const lastSyncDate = new Date(syncStatus.lastSync);
+                syncStatus元素.textContent = `上次同步: ${this.formatDate(lastSyncDate)}`;
+                syncStatus元素.style.display = 'block';
+            } else {
+                syncStatus元素.style.display = 'none';
+            }
+        }
     }
 
     // 初始化主题
@@ -153,6 +305,22 @@ class UIManager {
         document.getElementById('theme-toggle-btn').addEventListener('click', () => {
             this.toggleTheme();
         });
+
+        // 同步按钮
+        const syncBtn = document.getElementById('sync-btn');
+        if (syncBtn) {
+            syncBtn.addEventListener('click', () => {
+                this.performSync();
+            });
+        }
+
+        // 同步设置按钮
+        const syncSettingsBtn = document.getElementById('sync-settings-btn');
+        if (syncSettingsBtn) {
+            syncSettingsBtn.addEventListener('click', () => {
+                this.openSyncSettings();
+            });
+        }
 
         // 搜索输入框
         const searchInput = document.getElementById('search-input');
@@ -220,7 +388,53 @@ class UIManager {
                 e.preventDefault();
                 this.openPromptModal();
             }
+
+            // Ctrl/Cmd + S 同步
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                this.performSync();
+            }
         });
+    }
+
+    // 执行同步
+    async performSync() {
+        if (this.syncManager.syncStatus === 'syncing') {
+            return;
+        }
+
+        try {
+            this.updateSyncUI();
+            
+            // 先上传本地数据
+            await this.syncManager.syncUp(this.promptManager.getAllPrompts());
+            
+            // 然后下载云端数据（如果有更新）
+            const cloudData = await this.syncManager.syncDown();
+            
+            if (cloudData && cloudData.prompts) {
+                // 简单的合并策略：云端数据优先
+                this.promptManager.updateAllPrompts(cloudData.prompts);
+                this.renderPrompts();
+                this.updateCategoryFilter();
+            }
+
+            this.showToast('同步成功');
+        } catch (error) {
+            console.error('同步失败:', error);
+            this.showToast('同步失败: ' + error.message, 'error');
+        } finally {
+            this.updateSyncUI();
+        }
+    }
+
+    // 打开同步设置
+    openSyncSettings() {
+        // 这里可以打开一个设置模态框
+        // 或者跳转到设置页面
+        const providers = ['github', 'custom-api'];
+        const message = `可用的同步方式:\n${providers.map((p, i) => `${i + 1}. ${p}`).join('\n')}\n\n请查看文档了解如何配置同步功能。`;
+        alert(message);
     }
 
     // 渲染提示词列表

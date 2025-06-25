@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: prompt-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: prompts_db
+      MYSQL_USER: prompt_user
+      MYSQL_PASSWORD: prompt_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+
+  api:
+    build: ../server-examples/nodejs-mysql
+    container_name: prompt-api
+    environment:
+      DB_HOST: mysql
+      DB_USER: prompt_user
+      DB_PASSWORD: prompt_password
+      DB_NAME: prompts_db
+      JWT_SECRET: your-very-secure-secret-key-change-this
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    restart: unless-stopped
+    volumes:
+      - ../server-examples/nodejs-mysql:/app
+    working_dir: /app
+    command: npm start
+
+  nginx:
+    image: nginx:alpine
+    container_name: prompt-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ../:/usr/share/nginx/html
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  mysql_data:

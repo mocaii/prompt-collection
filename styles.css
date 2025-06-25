@@ -93,6 +93,62 @@ header h1 {
     gap: 15px;
 }
 
+/* 次要按钮样式 */
+.secondary-btn {
+    background-color: var(--secondary-color);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 50px;
+    font-size: 16px;
+    min-width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.secondary-btn:hover {
+    background-color: var(--secondary-hover);
+}
+
+/* 同步按钮样式 */
+.sync-btn {
+    background-color: var(--warning-color);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 50px;
+    font-size: 16px;
+    min-width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.sync-btn:hover {
+    background-color: var(--warning-hover);
+    transform: scale(1.05);
+}
+
+.sync-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* 同步状态显示 */
+.sync-status {
+    background-color: var(--search-info-bg);
+    color: var(--search-info-color);
+    padding: 8px 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-size: 12px;
+    text-align: center;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 /* 主题切换按钮 */
 .theme-toggle {
     background-color: transparent;
