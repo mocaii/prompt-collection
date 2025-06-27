@@ -717,7 +717,7 @@ class UIManager {
         // 按版本号倒序排列
         const sortedHistory = [...prompt.history].sort((a, b) => b.version - a.version);
         
-        historyList.innerHTML = sortedHistory.map(item => `
+        historyList.innerHTML = sortedHistory.map((item, index) => `
             <div class="history-item">
                 <div class="history-header">
                     <span class="history-version">版本 ${item.version}</span>
@@ -725,7 +725,7 @@ class UIManager {
                 </div>
                 <div class="history-content">${this.escapeHtml(item.content)}</div>
                 <div class="history-actions">
-                    <button onclick="uiManager.copyHistoryContent('${this.escapeHtml(item.content).replace(/'/g, "\\'")}')">复制此版本</button>
+                    <button onclick="uiManager.copyHistoryContentByIndex('${id}', ${index})">复制此版本</button>
                 </div>
             </div>
         `).join('');
@@ -733,17 +733,29 @@ class UIManager {
         modal.style.display = 'block';
     }
 
-    // 复制历史版本内容
-    copyHistoryContent(content) {
-        // 解码HTML实体
-        const decodedContent = this.unescapeHtml(content);
+    // 通过索引复制历史版本内容
+    copyHistoryContentByIndex(promptId, historyIndex) {
+        const prompt = this.promptManager.getPromptById(promptId);
+        if (!prompt || !prompt.history) {
+            this.showToast('没有找到历史记录', 'error');
+            return;
+        }
+
+        // 按版本号倒序排列后获取对应的历史记录
+        const sortedHistory = [...prompt.history].sort((a, b) => b.version - a.version);
+        const historyItem = sortedHistory[historyIndex];
         
-        navigator.clipboard.writeText(decodedContent).then(() => {
+        if (!historyItem) {
+            this.showToast('没有找到对应的历史版本', 'error');
+            return;
+        }
+
+        navigator.clipboard.writeText(historyItem.content).then(() => {
             this.showToast('历史版本内容已复制到剪贴板');
         }).catch(() => {
             // 降级方案
             const textArea = document.createElement('textarea');
-            textArea.value = decodedContent;
+            textArea.value = historyItem.content;
             document.body.appendChild(textArea);
             textArea.select();
             document.execCommand('copy');

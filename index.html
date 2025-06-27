@@ -3,88 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>提示词收藏夹</title>
+    <title>✨ 提示词收藏夹 - 现代化AI提示词管理工具</title>
+    <link rel="icon" href="favicon.ico">
     <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="description" content="一个现代化的AI提示词管理工具，支持云同步、版本控制和智能搜索">
 </head>
 <body>
     <div class="container">
+        <!-- 头部区域 -->
         <header>
-            <h1>mocai的提示词收藏夹</h1>
+            <div class="header-brand">
+                <h1>✨ 提示词收藏夹</h1>
+                <p class="header-subtitle">现代化AI提示词管理工具</p>
+            </div>
             <div class="header-actions">
-                <button id="sync-settings-btn" class="secondary-btn" title="同步设置">⚙️</button>
-                <button id="sync-btn" class="sync-btn" title="云同步" style="display: none;">☁️</button>
+                <button id="sync-settings-btn" class="secondary-btn" title="同步设置">
+                    ⚙️
+                </button>
+                <button id="sync-btn" class="sync-btn" title="云同步" style="display: none;">
+                    ☁️
+                </button>
                 <button id="theme-toggle-btn" class="theme-toggle" title="切换主题">
                     <span class="theme-icon">🌙</span>
                 </button>
-                <button id="add-prompt-btn">添加新提示词</button>
+                <button id="add-prompt-btn" class="primary-btn">
+                    <span>➕</span>
+                    添加新提示词
+                </button>
             </div>
         </header>
-        
+
         <!-- 同步状态显示 -->
         <div id="sync-status" class="sync-status" style="display: none;"></div>
-        
-        <!-- 搜索栏 -->
+
+        <!-- 搜索和筛选区域 -->
         <div class="search-container">
             <div class="search-box">
-                <input type="text" id="search-input" placeholder="搜索提示词标题、内容或分类...">
-                <button id="clear-search-btn" class="clear-btn" style="display: none;">×</button>
+                <input type="text" id="search-input" placeholder="🔍 搜索提示词标题、内容或分类...">
+                <button id="clear-search-btn" class="clear-btn" style="display: none;">✕</button>
             </div>
             <div class="search-filters">
                 <select id="category-filter">
-                    <option value="">所有分类</option>
+                    <option value="">📁 所有分类</option>
                 </select>
                 <select id="sort-filter">
-                    <option value="updated-desc">最近更新</option>
-                    <option value="updated-asc">最早更新</option>
-                    <option value="created-desc">最近创建</option>
-                    <option value="created-asc">最早创建</option>
-                    <option value="title-asc">标题 A-Z</option>
-                    <option value="title-desc">标题 Z-A</option>
+                    <option value="updated-desc">🕒 最近更新</option>
+                    <option value="updated-asc">⏰ 最早更新</option>
+                    <option value="created-desc">📅 最近创建</option>
+                    <option value="created-asc">📆 最早创建</option>
+                    <option value="title-asc">🔤 标题 A-Z</option>
+                    <option value="title-desc">🔤 标题 Z-A</option>
                 </select>
             </div>
         </div>
-        
-        <main>
-            <div class="prompts-container" id="prompts-list">
-                <!-- 提示词列表将通过JavaScript动态生成 -->
-            </div>
-        </main>
+
+        <!-- 提示词列表 -->
+        <div class="prompts-container" id="prompts-list">
+            <!-- 提示词卡片将在这里动态生成 -->
+        </div>
     </div>
-    
-    <!-- 添加/编辑提示词的模态框 -->
-    <div class="modal" id="prompt-modal">
+
+    <!-- 添加/编辑提示词模态框 -->
+    <div id="prompt-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
+            <span class="close-btn">✕</span>
             <h2 id="modal-title">添加新提示词</h2>
             <form id="prompt-form">
                 <div class="form-group">
-                    <label for="prompt-title">标题:</label>
-                    <input type="text" id="prompt-title" required>
+                    <label for="prompt-title">📝 标题</label>
+                    <input type="text" id="prompt-title" required placeholder="输入提示词标题...">
                 </div>
                 <div class="form-group">
-                    <label for="prompt-content">内容:</label>
-                    <textarea id="prompt-content" rows="8" required></textarea>
+                    <label for="prompt-content">📄 内容</label>
+                    <textarea id="prompt-content" required placeholder="输入提示词内容..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="prompt-category">分类:</label>
-                    <input type="text" id="prompt-category">
+                    <label for="prompt-category">🏷️ 分类</label>
+                    <input type="text" id="prompt-category" placeholder="输入分类名称（可选）...">
                 </div>
-                <button type="submit" id="save-prompt-btn">保存</button>
+                <button type="submit" id="save-prompt-btn" class="primary-btn">
+                    💾 保存提示词
+                </button>
             </form>
         </div>
     </div>
-    
-    <!-- 查看历史版本的模态框 -->
-    <div class="modal" id="history-modal">
+
+    <!-- 历史版本模态框 -->
+    <div id="history-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2>历史版本</h2>
+            <span class="close-btn">✕</span>
+            <h2>📚 历史版本</h2>
             <div id="history-list">
-                <!-- 历史版本列表将通过JavaScript动态生成 -->
+                <!-- 历史版本列表将在这里动态生成 -->
             </div>
         </div>
     </div>
-    
+
     <script src="app.js"></script>
 </body>
 </html>
